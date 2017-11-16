@@ -1,13 +1,17 @@
 export namespace SubmitAccountModels {
-  export class RequestModel {
+  export interface RequestModel {
     password: string;
   }
 
-  export class ResponseModel {
-
+  export interface ResponseModel {
+    address: string;
   }
 
-  export class ViewModel {
+  export interface ViewableAccount {
+    address: string;
+  }
 
+  export interface ViewModel {
+    viewableAccount: ViewableAccount;
   }
 }

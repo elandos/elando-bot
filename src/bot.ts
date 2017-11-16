@@ -50,6 +50,7 @@ import { CreateAccountRequestInteractor } from './accounts/usecases/create-accou
 import { CreateAccountRequestPresenter } from './accounts/usecases/create-account-request/create-account-request.presenter';
 import { SubmitAccountInteractor } from './accounts/usecases/submit-account/submit-account.interactor';
 import { SubmitAccountPresenter } from './accounts/usecases/submit-account/submit-account.presenter';
+import { SubmitAccountRepository } from './http/repositories/submit-account.repository';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -87,7 +88,9 @@ setupUserRegistration(controller);
 setupOnBoarding(controller);
 
 // Setup Skills
-const submitAccountInteractor = new SubmitAccountInteractor();
+// FIXME: change the address to env
+const submitAccountRepository = new SubmitAccountRepository(process.env.NEW_ACCOUNT_ENDPOINT);
+const submitAccountInteractor = new SubmitAccountInteractor(submitAccountRepository);
 const submitAccountPresenter = new SubmitAccountPresenter();
 setupDialogSubmissionSkill(controller, {
   submitAccountInteractor,

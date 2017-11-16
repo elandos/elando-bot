@@ -4,7 +4,8 @@
   "description": "A starter kit for building a custom Slack bot with Botkit Studio",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node bot.js",
+    "test": "mocha --compilers ts:ts-node/register ./src/**/*.spec.ts"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -20,10 +21,14 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.16.8",
+    "@types/chai": "^4.0.4",
     "@types/express": "^4.0.39",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.51",
     "@types/request": "^2.0.8",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "ts-node": "^3.3.0",
     "typescript": "^2.6.1"
   },
   "repository": {

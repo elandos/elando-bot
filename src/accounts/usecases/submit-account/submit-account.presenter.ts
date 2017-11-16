@@ -8,7 +8,11 @@ export interface ISubmitAccountPresenter {
 export class SubmitAccountPresenter implements ISubmitAccountPresenter {
   viewmodel: SubmitAccountModels.ViewModel;
   present(responseModel: SubmitAccountModels.ResponseModel): void {
-    throw new Error("Method not implemented.");
+    this.viewmodel = {
+      viewableAccount: {
+        address: responseModel.address,
+      }
+    }
   }
 
 }

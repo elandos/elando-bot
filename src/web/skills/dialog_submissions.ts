@@ -1,5 +1,6 @@
 import { ISubmitAccountInteractor, SubmitAccountInteractor } from "../../accounts/usecases/submit-account/submit-account.interactor";
 import { ISubmitAccountPresenter } from "../../accounts/usecases/submit-account/submit-account.presenter";
+import { SubmitAccountModels } from "../../accounts/usecases/submit-account/submit-account.models";
 
 var debug = require('debug')('botkit:dialog_submissions');
 
@@ -42,9 +43,14 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
         bot.dialogOk();
 
         var submission = message.submission;
-        submitAccountInteractor.submit(null, submitAccountPresenter)
+
+        const requestModel: SubmitAccountModels.RequestModel = {
+            password: submission.password,
+        };
+        debug('requestModel', requestModel);
+        submitAccountInteractor.submit(requestModel, submitAccountPresenter)
             .then(() => {
-                bot.reply(message, 'Your account has been created!');
+                bot.reply(message, submitAccountPresenter.viewmodel.viewableAccount.address);
             });
 
     });

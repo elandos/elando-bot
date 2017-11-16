@@ -14,7 +14,11 @@ export class SubmitAccountInteractor implements ISubmitAccountInteractor {
     return new Promise((resolve, reject) => {
       this.repository.createAccount(requestModel.password)
         .then(res => {
-          // TODO: not implemented
+          const responseModel: SubmitAccountModels.ResponseModel = {
+            address: res.address,
+          };
+
+          presenter.present(responseModel);
           resolve();
         })
     });
