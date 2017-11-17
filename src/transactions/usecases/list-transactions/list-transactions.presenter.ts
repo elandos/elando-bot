@@ -1,4 +1,5 @@
 import { ListTransactionsModels } from "./list-transactions.models";
+import { Transaction } from "../../entities/transaction";
 
 export interface IListTransactionsPresenter {
   viewmodel: ListTransactionsModels.ViewModel;
@@ -8,6 +9,27 @@ export interface IListTransactionsPresenter {
 export class ListTransactionsPresenter implements IListTransactionsPresenter {
   viewmodel: ListTransactionsModels.ViewModel;
   present(responseModel: ListTransactionsModels.ResponseModel) {
-    throw new Error("Method not implemented.");
+    const viewableTransactions = this.makeViewableTransactions(responseModel.transactions);
+    this.viewmodel = {
+      transactions: viewableTransactions,
+    };
+  }
+
+  private makeViewableTransactions(transactions: Transaction[]): ListTransactionsModels.ViewableTransaction[] {
+    return transactions.map(t => {
+      return {
+        hash: t.hash,
+        nonce: t.nonce,
+        blockHash: t.blockHash,
+        blockNumber: t.blockNumber,
+        transactionIndex: t.transactionIndex,
+        from: t.from,
+        to: t.to,
+        value: t.value,
+        gas: t.gas,
+        gasPrice: t.gasPrice,
+        input: t.input,
+      };
+    });
   }
 }

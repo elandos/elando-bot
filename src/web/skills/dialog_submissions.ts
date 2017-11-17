@@ -42,9 +42,11 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
         // call dialogOk or else Slack will think this is an error
         bot.dialogOk();
 
+        // TODO: need validation
         var submission = message.submission;
 
         const requestModel: SubmitAccountModels.RequestModel = {
+            userId: message.user.id,
             password: submission.password,
         };
         debug('requestModel', requestModel);

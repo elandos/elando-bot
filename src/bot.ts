@@ -36,6 +36,7 @@ if (!process.env.clientId || !process.env.clientSecret || !process.env.PORT) {
   process.exit(1);
 }
 
+import * as redis from 'redis';
 import * as Botkit from 'botkit';
 const debug = require('debug')('botkit:main');
 
@@ -51,6 +52,9 @@ import { CreateAccountRequestPresenter } from './accounts/usecases/create-accoun
 import { SubmitAccountInteractor } from './accounts/usecases/submit-account/submit-account.interactor';
 import { SubmitAccountPresenter } from './accounts/usecases/submit-account/submit-account.presenter';
 import { SubmitAccountRepository } from './http/repositories/submit-account.repository';
+import { ListTransactionsInteractor } from './transactions/usecases/list-transactions/list-transactions.interactor';
+import { ListTransactionsPresenter } from './transactions/usecases/list-transactions/list-transactions.presenter';
+import { ListTransactionsRepository } from './http/repositories/list-transactions.repository';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -89,14 +93,25 @@ setupOnBoarding(controller);
 
 // Setup Skills
 // FIXME: change the address to env
-const submitAccountRepository = new SubmitAccountRepository(process.env.NEW_ACCOUNT_ENDPOINT);
+
+const redisClient = redis.createClient({
+  host: process.env.REDIS_HOST
+});
+const submitAccountRepository = new SubmitAccountRepository(process.env.NEW_ACCOUNT_ENDPOINT, redisClient);
 const submitAccountInteractor = new SubmitAccountInteractor(submitAccountRepository);
 const submitAccountPresenter = new SubmitAccountPresenter();
 setupDialogSubmissionSkill(controller, {
   submitAccountInteractor,
   submitAccountPresenter,
 });
-setupHearsSkill(controller);
+
+const listTransactionRepository = new ListTransactionsRepository();
+const listTransactionsInteractor = new ListTransactionsInteractor(listTransactionRepository);
+const listTransactionsPresenter = new ListTransactionsPresenter();
+setupHearsSkill(controller, {
+  listTransactionsInteractor,
+  listTransactionsPresenter
+});
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();
 const createAccountRequestPresenter = new CreateAccountRequestPresenter();

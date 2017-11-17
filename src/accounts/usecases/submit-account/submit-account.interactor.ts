@@ -12,7 +12,7 @@ export class SubmitAccountInteractor implements ISubmitAccountInteractor {
 
   submit(requestModel: SubmitAccountModels.RequestModel, presenter: ISubmitAccountPresenter): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.repository.createAccount(requestModel.password)
+      this.repository.createAccount(requestModel.userId, requestModel.password)
         .then(res => {
           const responseModel: SubmitAccountModels.ResponseModel = {
             address: res.address,

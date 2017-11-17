@@ -1,5 +1,6 @@
 export namespace SubmitAccountModels {
   export interface RequestModel {
+    userId: string;
     password: string;
   }
 

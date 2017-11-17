@@ -16,4 +16,10 @@ services:
       clientSecret: "${SLACK_CLIENT_SECRET}"
       PORT: 3000
       NEW_ACCOUNT_ENDPOINT: "${NEW_ACCOUNT_ENDPOINT}"
+      REDIS_HOST: localhost
       DEBUG: '*'
+  redis:
+    image: redis:4-alpine
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
