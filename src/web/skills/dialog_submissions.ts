@@ -46,13 +46,14 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
         var submission = message.submission;
 
         const requestModel: SubmitAccountModels.RequestModel = {
-            userId: message.user.id,
+            userId: message.user,
             password: submission.password,
         };
         debug('requestModel', requestModel);
         submitAccountInteractor.submit(requestModel, submitAccountPresenter)
             .then(() => {
-                bot.reply(message, submitAccountPresenter.viewmodel.viewableAccount.address);
+                // TODO: format message
+                bot.whisper(message, submitAccountPresenter.viewmodel.viewableAccount.address);
             });
 
     });

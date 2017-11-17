@@ -16,7 +16,8 @@ services:
       clientSecret: "${SLACK_CLIENT_SECRET}"
       PORT: 3000
       NEW_ACCOUNT_ENDPOINT: "${NEW_ACCOUNT_ENDPOINT}"
-      REDIS_HOST: localhost
+      GET_TRANSACTIONS_ENDPOINT: "${GET_TRANSACTIONS_ENDPOINT}"
+      REDIS_HOST: redis
       DEBUG: '*'
   redis:
     image: redis:4-alpine

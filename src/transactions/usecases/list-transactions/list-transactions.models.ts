@@ -10,6 +10,7 @@ export namespace ListTransactionsModels {
   }
 
   export interface ViewModel {
+    text: string;
     transactions: ViewableTransaction[];
   }
 

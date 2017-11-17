@@ -10,7 +10,18 @@ export class ListTransactionsPresenter implements IListTransactionsPresenter {
   viewmodel: ListTransactionsModels.ViewModel;
   present(responseModel: ListTransactionsModels.ResponseModel) {
     const viewableTransactions = this.makeViewableTransactions(responseModel.transactions);
+
+    let msg = "";
+    if (viewableTransactions.length === 0) {
+      msg = "It looks like you don't have any transactions.";
+    } else {
+      msg = "Here are your transactions:\n";
+      viewableTransactions.forEach(t => {
+        msg += `${JSON.stringify(t)}\n`
+      });
+    }
     this.viewmodel = {
+      text: msg,
       transactions: viewableTransactions,
     };
   }

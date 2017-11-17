@@ -55,6 +55,7 @@ import { SubmitAccountRepository } from './http/repositories/submit-account.repo
 import { ListTransactionsInteractor } from './transactions/usecases/list-transactions/list-transactions.interactor';
 import { ListTransactionsPresenter } from './transactions/usecases/list-transactions/list-transactions.presenter';
 import { ListTransactionsRepository } from './http/repositories/list-transactions.repository';
+import { AccountsRepository } from './http/repositories/accounts.repository';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -92,8 +93,6 @@ setupUserRegistration(controller);
 setupOnBoarding(controller);
 
 // Setup Skills
-// FIXME: change the address to env
-
 const redisClient = redis.createClient({
   host: process.env.REDIS_HOST
 });
@@ -105,12 +104,15 @@ setupDialogSubmissionSkill(controller, {
   submitAccountPresenter,
 });
 
-const listTransactionRepository = new ListTransactionsRepository();
+const accountsRepository = new AccountsRepository(redisClient);
+
+const listTransactionRepository = new ListTransactionsRepository(process.env.GET_TRANSACTIONS_ENDPOINT);
 const listTransactionsInteractor = new ListTransactionsInteractor(listTransactionRepository);
 const listTransactionsPresenter = new ListTransactionsPresenter();
 setupHearsSkill(controller, {
   listTransactionsInteractor,
-  listTransactionsPresenter
+  listTransactionsPresenter,
+  accountsRepository,
 });
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();

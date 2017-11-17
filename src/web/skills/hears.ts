@@ -1,6 +1,8 @@
 import { IListTransactionsInteractor } from "../../transactions/usecases/list-transactions/list-transactions.interactor";
 import { IListTransactionsPresenter } from "../../transactions/usecases/list-transactions/list-transactions.presenter";
+import { IAccountsRepository } from "../../accounts/shared/accounts.repository";
 
+var debug = require('debug')('botkit:hears');
 /*
 
 WHAT IS THIS?
@@ -15,9 +17,16 @@ respond immediately with a single line response.
 interface Dependencies {
     listTransactionsInteractor: IListTransactionsInteractor;
     listTransactionsPresenter: IListTransactionsPresenter;
+    accountsRepository: IAccountsRepository;
 }
 
 export function setupHearsSkill(controller, deps: Dependencies) {
+
+    const {
+        accountsRepository,
+        listTransactionsInteractor,
+        listTransactionsPresenter,
+    } = deps;
 
     controller.hears(['^hi', '^hello'], 'direct_message,direct_mention', function (bot, message) {
         bot.reply(message, {
@@ -43,26 +52,21 @@ export function setupHearsSkill(controller, deps: Dependencies) {
     });
 
     controller.hears(['list.*transactions', 'show.*transactions', 'what.*transactions'], 'direct_message,direct_mention', function (bot, message) {
-        bot.reply(message, {
-            attachments: [{
-                title: 'May I help you?',
-                callback_id: '123', // FIXME: callback ID
-                attachment_type: 'default',
-                actions: [{
-                    "name": "create",
-                    "text": "Create Account",
-                    "value": "create",
-                    "type": "button",
-                },
-                {
-                    "name": "no",
-                    "text": "No Thanks",
-                    "value": "no",
-                    "type": "button",
-                }
-                ]
-            }]
-        });
+
+        debug("received message:", message);
+        accountsRepository.findAccountById(message.user)
+            .then(account => {
+
+                return listTransactionsInteractor.listAll({
+                    address: account.address,
+                }, listTransactionsPresenter);
+
+            })
+            .then(() => {
+                debug("presenter", listTransactionsPresenter.viewmodel);
+                bot.whisper(message, listTransactionsPresenter.viewmodel.text);
+            });
+
     });
 
 };
