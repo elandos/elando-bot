@@ -1,5 +1,6 @@
 import { ICreateAccountRequestInteractor } from "../../accounts/usecases/create-account-request/create-account-request.interactor";
 import { ICreateAccountRequestPresenter } from "../../accounts/usecases/create-account-request/create-account-request.presenter";
+import { CallbackIds } from "../shared/callback-ids";
 
 var debug = require('debug')('botkit:interactive_messages');
 
@@ -17,7 +18,7 @@ export function setupInteractiveMessagesSkill(controller, deps: Dependencies) {
         debug('interactive message callback:', trigger);
         // is the name of the clicked button "dialog?"
         // TODO: Fix matching word
-        if (trigger.actions[0].name.match(/^create/)) {
+        if (trigger.callback_id === CallbackIds.SHOW_MENU && trigger.actions[0].name.match(/^create/)) {
             createAccountRequestInteractor.createResponse(createAccountRequestPresenter);
 
             const {
@@ -28,7 +29,7 @@ export function setupInteractiveMessagesSkill(controller, deps: Dependencies) {
 
             var dialog = bot.createDialog(
                 d.title,
-                d.callbackId,
+                CallbackIds.SUBMIT_ACCOUNT,
                 d.submitLabel,
             ).addText(ptf.label, ptf.name, ptf.value, ptf.opts)
                 .addText(ctf.label, ctf.name, ctf.value, ctf.opts)

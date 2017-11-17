@@ -1,6 +1,7 @@
 import { ISubmitAccountInteractor, SubmitAccountInteractor } from "../../accounts/usecases/submit-account/submit-account.interactor";
 import { ISubmitAccountPresenter } from "../../accounts/usecases/submit-account/submit-account.presenter";
 import { SubmitAccountModels } from "../../accounts/usecases/submit-account/submit-account.models";
+import { CallbackIds } from "../shared/callback-ids";
 
 var debug = require('debug')('botkit:dialog_submissions');
 
@@ -45,16 +46,18 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
         // TODO: need validation
         var submission = message.submission;
 
-        const requestModel: SubmitAccountModels.RequestModel = {
-            userId: message.user,
-            password: submission.password,
-        };
-        debug('requestModel', requestModel);
-        submitAccountInteractor.submit(requestModel, submitAccountPresenter)
-            .then(() => {
-                // TODO: format message
-                bot.whisper(message, submitAccountPresenter.viewmodel.viewableAccount.address);
-            });
+        if (message.callback_id === CallbackIds.SUBMIT_ACCOUNT) {
+            const requestModel: SubmitAccountModels.RequestModel = {
+                userId: message.user,
+                password: submission.password,
+            };
+            debug('requestModel', requestModel);
+            submitAccountInteractor.submit(requestModel, submitAccountPresenter)
+                .then(() => {
+                    // TODO: format message
+                    bot.whisper(message, submitAccountPresenter.viewmodel.viewableAccount.address);
+                });
+        }
 
     });
 }

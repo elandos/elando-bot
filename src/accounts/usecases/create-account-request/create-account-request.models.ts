@@ -2,7 +2,6 @@ export namespace CreateAccountRequestModels {
   export interface ViewModel {
     dialog: {
       title: string;
-      callbackId: string;
       submitLabel: string;
     }
 

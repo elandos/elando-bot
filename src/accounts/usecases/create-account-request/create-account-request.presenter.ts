@@ -12,7 +12,6 @@ export class CreateAccountRequestPresenter implements ICreateAccountRequestPrese
     this.viewmodel = {
       dialog: {
         title: 'Create Account',
-        callbackId: 'callback_id',
         submitLabel: 'Submit',
       },
       passwordTextField: {

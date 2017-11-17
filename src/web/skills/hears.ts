@@ -1,6 +1,7 @@
 import { IListTransactionsInteractor } from "../../transactions/usecases/list-transactions/list-transactions.interactor";
 import { IListTransactionsPresenter } from "../../transactions/usecases/list-transactions/list-transactions.presenter";
 import { IAccountsRepository } from "../../accounts/shared/accounts.repository";
+import { CallbackIds } from "../shared/callback-ids";
 
 var debug = require('debug')('botkit:hears');
 /*
@@ -29,10 +30,11 @@ export function setupHearsSkill(controller, deps: Dependencies) {
     } = deps;
 
     controller.hears(['^hi', '^hello'], 'direct_message,direct_mention', function (bot, message) {
+        debug("hi message", message);
         bot.reply(message, {
             attachments: [{
                 title: 'May I help you?',
-                callback_id: '123', // FIXME: callback ID
+                callback_id: CallbackIds.SHOW_MENU,
                 attachment_type: 'default',
                 actions: [{
                     "name": "create",
@@ -45,8 +47,7 @@ export function setupHearsSkill(controller, deps: Dependencies) {
                     "text": "No Thanks",
                     "value": "no",
                     "type": "button",
-                }
-                ]
+                }]
             }]
         });
     });
