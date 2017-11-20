@@ -39,6 +39,34 @@ export function setupInteractiveMessagesSkill(controller, deps: Dependencies) {
                 // TODO: handle your errors!
             });
 
+        } else if (trigger.callback_id === CallbackIds.SHOW_MENU_FOR_TRANSACTION &&
+            trigger.actions[0].name.match(/^yes/)) {
+
+            // const {
+            //     dialog: d,
+            //     passwordTextField: ptf,
+            //     confirmTextField: ctf,
+            // } = createAccountRequestPresenter.viewmodel;
+            const userId = trigger.actions[0].value
+            const userIdTemplate = `<@${userId}>`
+
+            var dialog = bot.createDialog(
+                'Transaction',
+                CallbackIds.SUBMIT_TRANSACTION,
+                'Submit',
+            ).addSelect('To(Cannot be changed)', 'to', userId, [{ label: userId, value: userId }], null)
+                .addNumber('Amount', 'amount', '', {
+                    placeholder: 'Amount to send',
+                })
+                .addText('Password', 'password', '', {
+                    placeholder: 'Password for Ethereum account',
+                });
+
+            bot.replyWithDialog(trigger, dialog.asObject(), function (err, res) {
+                debug('replyWithDialog response:', res);
+                // TODO: handle your errors!
+            });
+
         }
 
     });

@@ -57,7 +57,7 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
                     // TODO: format message
                     bot.whisper(message, submitAccountPresenter.viewmodel.viewableAccount.address);
                 });
+        } else if (message.callback_id === CallbackIds.SUBMIT_TRANSACTION) {
         }
-
     });
 }

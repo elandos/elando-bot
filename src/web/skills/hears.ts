@@ -52,6 +52,30 @@ export function setupHearsSkill(controller, deps: Dependencies) {
         });
     });
 
+    controller.hears(['send.* to <@(.*)>'], 'direct_message,direct_mention', function (bot, message) {
+        debug("send to", message);
+        const targetId = message.match[1];
+        bot.reply(message, {
+            attachments: [{
+                title: `Do you want to send <@${targetId}>(User ID: ${targetId}) eth?`,
+                callback_id: CallbackIds.SHOW_MENU_FOR_TRANSACTION,
+                attachment_type: 'default',
+                actions: [{
+                    "name": "yes",
+                    "text": "Yes",
+                    "value": targetId,
+                    "type": "button",
+                },
+                {
+                    "name": "no",
+                    "text": "No Thanks",
+                    "value": "no",
+                    "type": "button",
+                }]
+            }]
+        });
+    });
+
     controller.hears(['list.*transactions', 'show.*transactions', 'what.*transactions'], 'direct_message,direct_mention', function (bot, message) {
 
         debug("received message:", message);
