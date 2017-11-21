@@ -56,6 +56,8 @@ import { ListTransactionsInteractor } from './transactions/usecases/list-transac
 import { ListTransactionsPresenter } from './transactions/usecases/list-transactions/list-transactions.presenter';
 import { ListTransactionsRepository } from './http/repositories/list-transactions.repository';
 import { AccountsRepository } from './http/repositories/accounts.repository';
+import { SendTransactionRequestInteractor } from './transactions/usecases/send-transaction-request/send-transaction-request.interactor';
+import { SendTransactionRequestPresenter } from './transactions/usecases/send-transaction-request/send-transaction-request.presenter';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -117,9 +119,13 @@ setupHearsSkill(controller, {
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();
 const createAccountRequestPresenter = new CreateAccountRequestPresenter();
+const sendTransactionRequestInteractor = new SendTransactionRequestInteractor();
+const sendTransactionRequestPresenter = new SendTransactionRequestPresenter();
 setupInteractiveMessagesSkill(controller, {
   createAccountRequestInteractor,
   createAccountRequestPresenter,
+  sendTransactionRequestInteractor,
+  sendTransactionRequestPresenter,
 });
 
 server.listen(+process.env.PORT || 3000, null, function () {

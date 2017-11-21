@@ -1,17 +1,26 @@
 import { ICreateAccountRequestInteractor } from "../../accounts/usecases/create-account-request/create-account-request.interactor";
 import { ICreateAccountRequestPresenter } from "../../accounts/usecases/create-account-request/create-account-request.presenter";
 import { CallbackIds } from "../shared/callback-ids";
+import { ISendTransactionRequestInteractor } from "../../transactions/usecases/send-transaction-request/send-transaction-request.interactor";
+import { ISendTransactionRequestPresenter } from "../../transactions/usecases/send-transaction-request/send-transaction-request.presenter";
 
 var debug = require('debug')('botkit:interactive_messages');
 
 interface Dependencies {
     createAccountRequestInteractor: ICreateAccountRequestInteractor;
     createAccountRequestPresenter: ICreateAccountRequestPresenter;
+    sendTransactionRequestInteractor: ISendTransactionRequestInteractor,
+    sendTransactionRequestPresenter: ISendTransactionRequestPresenter,
 }
 
 export function setupInteractiveMessagesSkill(controller, deps: Dependencies) {
 
-    const { createAccountRequestInteractor, createAccountRequestPresenter } = deps;
+    const {
+        createAccountRequestInteractor,
+        createAccountRequestPresenter,
+        sendTransactionRequestInteractor,
+        sendTransactionRequestPresenter,
+        } = deps;
 
     // launch a dialog from a button click
     controller.on('interactive_message_callback', function (bot, trigger) {
@@ -42,25 +51,26 @@ export function setupInteractiveMessagesSkill(controller, deps: Dependencies) {
         } else if (trigger.callback_id === CallbackIds.SHOW_MENU_FOR_TRANSACTION &&
             trigger.actions[0].name.match(/^yes/)) {
 
-            // const {
-            //     dialog: d,
-            //     passwordTextField: ptf,
-            //     confirmTextField: ctf,
-            // } = createAccountRequestPresenter.viewmodel;
-            const userId = trigger.actions[0].value
-            const userIdTemplate = `<@${userId}>`
+            // TODO: error handling
+            const userId: string = trigger.actions[0].value
+            sendTransactionRequestInteractor.createResponse({
+                userId,
+            }, sendTransactionRequestPresenter);
+
+            const {
+                dialog: d,
+                userSelectField: usf,
+                ammountTextField: atf,
+                passwordTextField: ptf,
+            } = sendTransactionRequestPresenter.viewmodel;
 
             var dialog = bot.createDialog(
-                'Transaction',
+                d.title,
                 CallbackIds.SUBMIT_TRANSACTION,
-                'Submit',
-            ).addSelect('To(Cannot be changed)', 'to', userId, [{ label: userId, value: userId }], null)
-                .addNumber('Amount', 'amount', '', {
-                    placeholder: 'Amount to send',
-                })
-                .addText('Password', 'password', '', {
-                    placeholder: 'Password for Ethereum account',
-                });
+                d.submitLabel,
+            ).addSelect(usf.label, usf.name, usf.value, usf.optionList, null)
+                .addNumber(atf.label, atf.name, atf.value, atf.opts)
+                .addText(ptf.label, ptf.name, ptf.value, ptf.opts);
 
             bot.replyWithDialog(trigger, dialog.asObject(), function (err, res) {
                 debug('replyWithDialog response:', res);
