@@ -58,6 +58,9 @@ import { ListTransactionsRepository } from './http/repositories/list-transaction
 import { AccountsRepository } from './http/repositories/accounts.repository';
 import { SendTransactionRequestInteractor } from './transactions/usecases/send-transaction-request/send-transaction-request.interactor';
 import { SendTransactionRequestPresenter } from './transactions/usecases/send-transaction-request/send-transaction-request.presenter';
+import { SubmitTransactionRepository } from './http/repositories/submit-transaction.repository';
+import { SubmitTransactionInteractor } from './transactions/usecases/submit-transaction/submit-transaction.interactor';
+import { SubmitTransactionPresenter } from './transactions/usecases/submit-transaction/submit-transaction.presenter';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -98,15 +101,23 @@ setupOnBoarding(controller);
 const redisClient = redis.createClient({
   host: process.env.REDIS_HOST
 });
+const accountsRepository = new AccountsRepository(redisClient);
+
 const submitAccountRepository = new SubmitAccountRepository(process.env.NEW_ACCOUNT_ENDPOINT, redisClient);
 const submitAccountInteractor = new SubmitAccountInteractor(submitAccountRepository);
 const submitAccountPresenter = new SubmitAccountPresenter();
+
+const submitTransactionRepository = new SubmitTransactionRepository(process.env.SEND_TRANSACTION_ENDPOINT);
+const submitTransactionInteractor = new SubmitTransactionInteractor(submitTransactionRepository);
+const submitTransactionPresenter = new SubmitTransactionPresenter();
 setupDialogSubmissionSkill(controller, {
   submitAccountInteractor,
   submitAccountPresenter,
+  submitTransactionInteractor,
+  submitTransactionPresenter,
+  accountsRepository,
 });
 
-const accountsRepository = new AccountsRepository(redisClient);
 
 const listTransactionRepository = new ListTransactionsRepository(process.env.GET_TRANSACTIONS_ENDPOINT);
 const listTransactionsInteractor = new ListTransactionsInteractor(listTransactionRepository);
