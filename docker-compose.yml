@@ -4,6 +4,7 @@ services:
   elando-bot:
     build: ./.
     image: elandos/elando-bot
+    restart: always
     ports:
       - 3000:3000
     volumes:

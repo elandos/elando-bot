@@ -61,6 +61,7 @@ import { SendTransactionRequestPresenter } from './transactions/usecases/send-tr
 import { SubmitTransactionRepository } from './http/repositories/submit-transaction.repository';
 import { SubmitTransactionInteractor } from './transactions/usecases/submit-transaction/submit-transaction.interactor';
 import { SubmitTransactionPresenter } from './transactions/usecases/submit-transaction/submit-transaction.presenter';
+import { setupSlashCommandSkill } from './web/skills/slash_commands';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -122,14 +123,22 @@ setupDialogSubmissionSkill(controller, {
 const listTransactionRepository = new ListTransactionsRepository(process.env.GET_TRANSACTIONS_ENDPOINT);
 const listTransactionsInteractor = new ListTransactionsInteractor(listTransactionRepository);
 const listTransactionsPresenter = new ListTransactionsPresenter();
-setupHearsSkill(controller, {
-  listTransactionsInteractor,
-  listTransactionsPresenter,
-  accountsRepository,
-});
+// setupHearsSkill(controller, {
+//   listTransactionsInteractor,
+//   listTransactionsPresenter,
+//   accountsRepository,
+// });
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();
 const createAccountRequestPresenter = new CreateAccountRequestPresenter();
+setupSlashCommandSkill(controller, {
+  accountsRepository,
+  createAccountRequestInteractor,
+  createAccountRequestPresenter,
+  listTransactionsInteractor,
+  listTransactionsPresenter,
+});
+
 const sendTransactionRequestInteractor = new SendTransactionRequestInteractor();
 const sendTransactionRequestPresenter = new SendTransactionRequestPresenter();
 setupInteractiveMessagesSkill(controller, {
