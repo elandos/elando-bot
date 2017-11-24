@@ -56,6 +56,15 @@ import { ListTransactionsInteractor } from './transactions/usecases/list-transac
 import { ListTransactionsPresenter } from './transactions/usecases/list-transactions/list-transactions.presenter';
 import { ListTransactionsRepository } from './http/repositories/list-transactions.repository';
 import { AccountsRepository } from './http/repositories/accounts.repository';
+import { SendTransactionRequestInteractor } from './transactions/usecases/send-transaction-request/send-transaction-request.interactor';
+import { SendTransactionRequestPresenter } from './transactions/usecases/send-transaction-request/send-transaction-request.presenter';
+import { SubmitTransactionRepository } from './http/repositories/submit-transaction.repository';
+import { SubmitTransactionInteractor } from './transactions/usecases/submit-transaction/submit-transaction.interactor';
+import { SubmitTransactionPresenter } from './transactions/usecases/submit-transaction/submit-transaction.presenter';
+import { setupSlashCommandSkill } from './web/skills/slash_commands';
+import { ShowBalanceInteractor } from './balances/usecases/show-balance/show-balance.interactor';
+import { ShowBalancePresenter } from './balances/usecases/show-balance/show-balance.presenter';
+import { ShowBalanceRepository } from './http/repositories/show-balance.repository';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -96,30 +105,55 @@ setupOnBoarding(controller);
 const redisClient = redis.createClient({
   host: process.env.REDIS_HOST
 });
+const accountsRepository = new AccountsRepository(redisClient);
+
 const submitAccountRepository = new SubmitAccountRepository(process.env.NEW_ACCOUNT_ENDPOINT, redisClient);
 const submitAccountInteractor = new SubmitAccountInteractor(submitAccountRepository);
 const submitAccountPresenter = new SubmitAccountPresenter();
+
+const submitTransactionRepository = new SubmitTransactionRepository(process.env.SEND_TRANSACTION_ENDPOINT);
+const submitTransactionInteractor = new SubmitTransactionInteractor(submitTransactionRepository);
+const submitTransactionPresenter = new SubmitTransactionPresenter();
 setupDialogSubmissionSkill(controller, {
   submitAccountInteractor,
   submitAccountPresenter,
+  submitTransactionInteractor,
+  submitTransactionPresenter,
+  accountsRepository,
 });
 
-const accountsRepository = new AccountsRepository(redisClient);
 
 const listTransactionRepository = new ListTransactionsRepository(process.env.GET_TRANSACTIONS_ENDPOINT);
 const listTransactionsInteractor = new ListTransactionsInteractor(listTransactionRepository);
 const listTransactionsPresenter = new ListTransactionsPresenter();
-setupHearsSkill(controller, {
-  listTransactionsInteractor,
-  listTransactionsPresenter,
-  accountsRepository,
-});
+// setupHearsSkill(controller, {
+//   listTransactionsInteractor,
+//   listTransactionsPresenter,
+//   accountsRepository,
+// });
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();
 const createAccountRequestPresenter = new CreateAccountRequestPresenter();
+const showBalanceRepository = new ShowBalanceRepository(process.env.GET_BALANCE_ENDPOINT);
+const showBalanceInteractor = new ShowBalanceInteractor(showBalanceRepository);
+const showBalancePresenter = new ShowBalancePresenter();
+setupSlashCommandSkill(controller, {
+  accountsRepository,
+  createAccountRequestInteractor,
+  createAccountRequestPresenter,
+  showBalanceInteractor,
+  showBalancePresenter,
+  listTransactionsInteractor,
+  listTransactionsPresenter,
+});
+
+const sendTransactionRequestInteractor = new SendTransactionRequestInteractor();
+const sendTransactionRequestPresenter = new SendTransactionRequestPresenter();
 setupInteractiveMessagesSkill(controller, {
   createAccountRequestInteractor,
   createAccountRequestPresenter,
+  sendTransactionRequestInteractor,
+  sendTransactionRequestPresenter,
 });
 
 server.listen(+process.env.PORT || 3000, null, function () {

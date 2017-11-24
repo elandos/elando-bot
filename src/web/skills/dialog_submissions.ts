@@ -2,16 +2,28 @@ import { ISubmitAccountInteractor, SubmitAccountInteractor } from "../../account
 import { ISubmitAccountPresenter } from "../../accounts/usecases/submit-account/submit-account.presenter";
 import { SubmitAccountModels } from "../../accounts/usecases/submit-account/submit-account.models";
 import { CallbackIds } from "../shared/callback-ids";
+import { ISubmitTransactionInteractor } from "../../transactions/usecases/submit-transaction/submit-transaction.interactor";
+import { ISubmitTransactionPresenter } from "../../transactions/usecases/submit-transaction/submit-transaction.presenter";
+import { IAccountsRepository } from "../../accounts/shared/accounts.repository";
 
 var debug = require('debug')('botkit:dialog_submissions');
 
 interface Dependencies {
     submitAccountInteractor: ISubmitAccountInteractor,
     submitAccountPresenter: ISubmitAccountPresenter,
+    submitTransactionInteractor: ISubmitTransactionInteractor,
+    submitTransactionPresenter: ISubmitTransactionPresenter,
+    accountsRepository: IAccountsRepository;
 }
 
 export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
-    const { submitAccountInteractor, submitAccountPresenter } = deps;
+    const {
+        submitAccountInteractor,
+        submitAccountPresenter,
+        submitTransactionInteractor,
+        submitTransactionPresenter,
+        accountsRepository,
+    } = deps;
     // use a receive middleware hook to validate a form submission
     // and use bot.dialogError to respond with an error before the submission
     // can be sent to the handler
@@ -57,7 +69,27 @@ export function setupDialogSubmissionSkill(controller, deps: Dependencies) {
                     // TODO: format message
                     bot.whisper(message, submitAccountPresenter.viewmodel.viewableAccount.address);
                 });
-        }
+        } else if (message.callback_id === CallbackIds.SUBMIT_TRANSACTION) {
+            const fetchFrom = accountsRepository.findAccountById(message.user);
+            const fetchTo = accountsRepository.findAccountById(submission.to);
 
+            return Promise.all([fetchFrom, fetchTo])
+                .then(([from, to]) => {
+
+                    debug('from', from);
+                    debug('to', to);
+                    return submitTransactionInteractor.submit({
+                        from: from.address,
+                        to: to.address,
+                        value: submission.amount,
+                    }, submitTransactionPresenter);
+                })
+                .then(() => {
+                    // TODO: format message
+                    debug('presenter', submitTransactionPresenter);
+                    const str = JSON.stringify(submitTransactionPresenter.viewmodel.transaction);
+                    bot.whisper(message, str);
+                });
+        }
     });
 }

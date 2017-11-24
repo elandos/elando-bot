@@ -4,6 +4,7 @@ services:
   elando-bot:
     build: ./.
     image: elandos/elando-bot
+    restart: always
     ports:
       - 3000:3000
     volumes:
@@ -17,6 +18,8 @@ services:
       PORT: 3000
       NEW_ACCOUNT_ENDPOINT: "${NEW_ACCOUNT_ENDPOINT}"
       GET_TRANSACTIONS_ENDPOINT: "${GET_TRANSACTIONS_ENDPOINT}"
+      SEND_TRANSACTION_ENDPOINT: "${SEND_TRANSACTION_ENDPOINT}"
+      GET_BALANCE_ENDPOINT: "${GET_BALANCE_ENDPOINT}"
       REDIS_HOST: redis
       DEBUG: '*'
   redis:
