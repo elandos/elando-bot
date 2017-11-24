@@ -6,6 +6,8 @@ import { ISendTransactionRequestPresenter } from "../../transactions/usecases/se
 import { IAccountsRepository } from "../../accounts/shared/accounts.repository";
 import { IListTransactionsInteractor } from "../../transactions/usecases/list-transactions/list-transactions.interactor";
 import { IListTransactionsPresenter } from "../../transactions/usecases/list-transactions/list-transactions.presenter";
+import { IShowBalanceInteractor } from "../../balances/usecases/show-balance/show-balance.interactor";
+import { IShowBalancePresenter } from "../../balances/usecases/show-balance/show-balance.presenter";
 
 var debug = require('debug')('botkit:slash_command');
 
@@ -15,6 +17,8 @@ interface Dependencies {
     createAccountRequestPresenter: ICreateAccountRequestPresenter;
     listTransactionsInteractor: IListTransactionsInteractor;
     listTransactionsPresenter: IListTransactionsPresenter;
+    showBalanceInteractor: IShowBalanceInteractor;
+    showBalancePresenter: IShowBalancePresenter;
 }
 
 export function setupSlashCommandSkill(controller, deps: Dependencies) {
@@ -25,6 +29,9 @@ export function setupSlashCommandSkill(controller, deps: Dependencies) {
         switch (message.command) {
             case '/createaccount':
                 handleCreateAccount(bot, message, deps);
+                break;
+            case '/showbalance':
+                handleShowBalance(bot, message, deps);
                 break;
             case '/showtransactions':
                 handleShowTransactions(bot, message, deps);
@@ -62,6 +69,26 @@ function handleCreateAccount(bot: any, message: any, deps: Dependencies) {
         debug('replyWithDialog response:', res);
         // TODO: handle your errors!
     });
+}
+
+function handleShowBalance(bot: any, message: any, deps: Dependencies) {
+    const {
+        accountsRepository,
+        showBalanceInteractor,
+        showBalancePresenter,
+    } = deps;
+
+    accountsRepository.findAccountById(message.user)
+        .then(account => {
+
+            return showBalanceInteractor.get({
+                address: account.address
+            }, showBalancePresenter);
+        })
+        .then(() => {
+            debug("presenter", showBalancePresenter.viewmodel);
+            bot.whisper(message, showBalancePresenter.viewmodel.text);
+        });
 }
 
 function handleShowTransactions(bot: any, message: any, deps: Dependencies) {

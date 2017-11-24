@@ -62,6 +62,9 @@ import { SubmitTransactionRepository } from './http/repositories/submit-transact
 import { SubmitTransactionInteractor } from './transactions/usecases/submit-transaction/submit-transaction.interactor';
 import { SubmitTransactionPresenter } from './transactions/usecases/submit-transaction/submit-transaction.presenter';
 import { setupSlashCommandSkill } from './web/skills/slash_commands';
+import { ShowBalanceInteractor } from './balances/usecases/show-balance/show-balance.interactor';
+import { ShowBalancePresenter } from './balances/usecases/show-balance/show-balance.presenter';
+import { ShowBalanceRepository } from './http/repositories/show-balance.repository';
 
 var bot_options: SlackConfiguration = {
   clientId: process.env.clientId,
@@ -131,10 +134,15 @@ const listTransactionsPresenter = new ListTransactionsPresenter();
 
 const createAccountRequestInteractor = new CreateAccountRequestInteractor();
 const createAccountRequestPresenter = new CreateAccountRequestPresenter();
+const showBalanceRepository = new ShowBalanceRepository(process.env.GET_BALANCE_ENDPOINT);
+const showBalanceInteractor = new ShowBalanceInteractor(showBalanceRepository);
+const showBalancePresenter = new ShowBalancePresenter();
 setupSlashCommandSkill(controller, {
   accountsRepository,
   createAccountRequestInteractor,
   createAccountRequestPresenter,
+  showBalanceInteractor,
+  showBalancePresenter,
   listTransactionsInteractor,
   listTransactionsPresenter,
 });
